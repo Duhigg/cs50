@@ -1,0 +1,48 @@
+Resize (less comfortable)
+
+Implement your program in a file called resize.c in a directory called resize.
+Your program should accept exactly three command-line arguments, whereby
+the first (n) must be a positive integer less than or equal to 100,
+the second must be the name of a BMP to be resized, and
+the third must be the name of the resized version to be written.
++ If your program is not executed with such, it should remind the user of correct usage, as with fprintf (to stderr), and main should return 1.
+Your program, if it uses malloc, must not leak any memory.
+
+Open file
+copy.c
+
+Update outfile's header info
+copy.c
+what's changing?
+  file size (bfSize)
+    bf.bfSize = bi.biSizeImage +
+        sizeof(BITMAPFILEHEADER) +
+        sizeof(BITMAPINFOHEADER);
+  image size (biSizeImage)
+    = ((sizeof(RGBTRIPLE) * (bi.biWidth * n)) + padding)
+      * abs((bi.biHeight) * n);
+  width (biWidth * n)
+  height (biHeight * n)
+
+
+Read infile's scanline, pixel by pixel
+copy.c // fread();
+
+resize horizontally
+for each row
+  for each pixel in row
+    write n times
+      iterate through each byte in triple and * n
+    write outfile's Padding
+    skip over infile's padding
+
+remember padding!
+not fread but fputc(0x00, outptr);
+skip infile's padding
+
+resize vertically
+(n - 1) * horizontally(?) on next row
+
+Rewrite method
+
+re-copy method

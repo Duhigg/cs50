@@ -37,7 +37,7 @@ BITMAPFILEHEADER
 
 Read clue's scanline, pixel by pixel
  reading files
- fread(data, size, number, inptr);
+ fread({to}data, size, number, {from}inptr);
   data: pointer to a struct(train!) that will contain the bytes you're reading
   size: size of each element to read
     sizeof()
@@ -63,8 +63,30 @@ RGBTRIPLE
   triple.rgbtRed = 0x00;
 
 write verdict's scanline, pixel by pixel
-fwrite(data, size, nubmer, outptr);
+fwrite({from}data, size, nubmer, {to}outptr);
   data: pointer to the struct that contains the bytes you're writing
   size
   number
   outptr: FILE * to write to
+
+Padding
+  each pixel is 3 bytes
+  length of each scanline must be a multiple of 4 bytes.
+  if the number of pixels isn't a multiple of 4 --> Padding
+    padding is just n times (zeroes) 0x00
+    padding = (4 - (bi.biWidth * sizeof(RGBTRIPLE)) % 4) % 4
+
+ writing Padding
+  fputc(chr, outptr);
+    chr: char to write
+    outptr: FILE * to write to
+  fputc(0x00, outptr);
+
+file position indicator
+  fseek(inptr, offset, from);
+    inptr: FILE * to seek over
+    offset: number of bytes to move cursor
+    from:
+      SEEK_CUR (current position in file)
+      SEEK_SET (beginning of file)
+      SEEK_END (end of file)
