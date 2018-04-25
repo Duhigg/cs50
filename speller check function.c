@@ -1,3 +1,23 @@
+// Implements a dictionary's functionality
+
+#include <stdbool.h>
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+
+#define TRUE 1
+#define FALSE 0
+
+#include "dictionary.h"
+
+/*// Returns true if word is in dictionary else false
+bool check(const char *word)
+{
+    // TODO
+    return false;
+} */
+
 // Loads dictionary into memory, returning true if successful else false
 bool load(const char *dictionary)
 {
@@ -12,6 +32,15 @@ bool load(const char *dictionary)
 
     // root node, do not alter
     node *root = malloc(sizeof(node));
+    // traverse pointer for traversing through the trie
+    node *trav = root;
+
+    // set sprouts pointer to NULL, rid of magic numbers? ¤
+    for(int p = 0; p < 27; p++)
+    {
+        root->sprout[p] = NULL;
+        trav->sprout[p] = NULL; // edited for debuggin ¤
+    }
 
     // store number of words in dictionary
     int words = 0;
@@ -20,10 +49,9 @@ bool load(const char *dictionary)
     while(fgets(temp, 45 + 1, temp_dict) != NULL)
         words++;
 
-    // traverse pointer for traversing through the trie
-    node *trav = root;
 
-    // set the file position indicator of dictionar to the beginning of the file, [not sure if necessary]
+
+    // set the file position indicator of dictionar to the beginning of the file, [¤not sure if necessary]
     rewind(temp_dict);
 
     // variable for indexing characters in words and their corresponding index in sprout
@@ -38,63 +66,46 @@ bool load(const char *dictionary)
         // realloc to get rid of excess memory? not sure if necessary(?)
         realloc(word_buffer, strlen(word_buffer) * sizeof(char));
         // for each character in word_buffer load into TRIE
+
+
         for(int word_idx = 0; word_idx < strlen(word_buffer); word_idx++)
         {
                 // check for case
-                if(isupper(word_buffer[word_idx]))
+                if(isalpha(word_buffer[word_idx]))
                 {
-                    // word's characters index corresponding to sprouts index... TBE
-                    cor_idx = word_buffer[word_idx] - (int) 'A';
-                    // check for null pointers in
-                    switch(trav->sprout[cor_idx] == NULL)
+                    // current character's corresponding index in the alphabet(sprout)
+                    if(isupper(word_buffer[word_idx]))
                     {
-                        case TRUE :
-                            node *new_node = malloc(sizeof(node));
-                            trav->sprout[cor_idx] = new_node;
-                            break;
-                        default :
-                            trav->sprout[cor_idx] = new_node;
+                        cor_idx = word_buffer[word_idx] - (int) 'A';
                     }
+                    else
+                        cor_idx = word_buffer[word_idx] - (int) 'a';
+
+                    // if NULL, malloc a new node, have sprout[cor_idx] point to it
+                    if (trav->sprout[cor_idx] == NULL)
+                    {
+                        node *new_node  = malloc(sizeof(node));
+                        trav->sprout[cor_idx] = new_node;
+                    }
+                    else // if not NULL, move to new node and continue
+                            trav->sprout = new_node;
                     // if at end of word, set is_word to true
                     if(word_idx == strlen(word_buffer) - 1)
                     {
                         is_word == 1;
                         trav->sprout = root;
                     }
+
                 }
-                if(islower(word_buffer[word_idx]))
-                {
-                    // index for the alphabet
-                    cor_idx = word_buffer[word_idx] - (int) 'a';
-                    // check for null pointers in
-                    switch(trav->sprout[cor_idx] == NULL)
-                    {
-                        case TRUE :
-                            node *new_node = malloc(sizeof(node));
-                            trav->sprout[cor_idx] = new_node;
-                            break;
-                        default :
-                            trav->sprout[cor_idx] = new_node;
-                    }
-                    // if at end of word, set is_word to true
-                    if(word_idx == strlen(word_buffer) - 1)
-                    {
-                        is_word == 1;
-                        trav->sprout = root;
-                    }
-                }
-                /*  if neither upper or lower, current character must be and apostrophie
-                    and the index is therefore the last index of sprout
-                */
-                else
+                else // neither upper or lower, current character must be and apostrophie index n-1
                 {
                     // last index of sprout
-                    cor_idx = sizeof(sprout) / sizeof(node) - 1;
+                    cor_idx = sizeof(node->sprout) / sizeof(node) - 1;
                     // check for null pointers
                     switch(trav->sprout[cor_idx] == NULL)
                     {
                         case TRUE :
-                            node *new_node = mallock(sizeof(node));
+                            node *new_node = malloc(sizeof(node));
                             trav->sprout[cor_idx] = new_node;
                             break;
                         default :
@@ -111,3 +122,21 @@ bool load(const char *dictionary)
 
         }
     }
+
+
+        return false;
+}
+
+// Returns number of words in dictionary if loaded else 0 if not yet loaded
+unsigned int size(void)
+{
+    // TODO
+    return 0;
+}
+
+// Unloads dictionary from memory, returning true if successful else false
+bool unload(void)
+{
+    // TODO
+    return false;
+}
