@@ -6,6 +6,14 @@
 #include <stdlib.h>
 #include <ctype.h>
 
+// define a node struct for a TRIE
+typedef struct node
+{
+    bool is_word;
+    struct node *sprout[27];
+}
+node;
+
 #define TRUE 1
 #define FALSE 0
 
@@ -19,16 +27,11 @@ bool check(const char *word)
 } */
 
 // Loads dictionary into memory, returning true if successful else false
+// lines marked with ¤ are awaiting editing
 bool load(const char *dictionary)
 {
     // TODO
-    // define a node struct for a TRIE
-    typedef struct node
-    {
-        bool is_word;
-        struct node *sprout[27];
-    }
-    node;
+
 
     // root node, do not alter
     node *root = malloc(sizeof(node));
@@ -74,7 +77,7 @@ bool load(const char *dictionary)
                 if(isalpha(word_buffer[word_idx]))
                 {
                     // current character's corresponding index in the alphabet(sprout)
-                    if(isupper(word_buffer[word_idx]))
+                    if(toupper(word_buffer[word_idx]))
                     {
                         cor_idx = word_buffer[word_idx] - (int) 'A';
                     }
@@ -84,11 +87,18 @@ bool load(const char *dictionary)
                     // if NULL, malloc a new node, have sprout[cor_idx] point to it
                     if (trav->sprout[cor_idx] == NULL)
                     {
-                        node *new_node  = malloc(sizeof(node));
+                        node *new_node = malloc(sizeof(node));
+
+                        // set sprouts to NULL, rid of magic numbers(27)? ¤ unnecessary loop?
+                        for(int p = 0; p < 27; p++)
+                        {
+                            new_node->sprout[p] = NULL; //
+                        }
+                        // go into that node
                         trav->sprout[cor_idx] = new_node;
                     }
-                    else // if not NULL, move to new node and continue
-                            trav->sprout = new_node;
+                    else // if not NULL, point to new_node since there already is one(?) ¤
+                            trav->sprout = new_node;;
                     // if at end of word, set is_word to true
                     if(word_idx == strlen(word_buffer) - 1)
                     {
