@@ -24,6 +24,9 @@ node;
     node *root; // root node, do not alter
     node *trav; // traverse pointer for traversing through the trie
     node *new_node;
+    node *cursor;// temporal cursor for recursion in unloading
+
+void recursion(node *);
 
 // Returns true if word is in dictionary else false
 bool check(const char *word)
@@ -35,6 +38,7 @@ bool check(const char *word)
         int word_idx = toupper(word[i]) - 'A';
 
             // go to corresponding element in sprout
+            trav = root;
             if(trav->sprout[word_idx])
             {
                 trav->sprout[word_idx] = new_node;
@@ -59,7 +63,7 @@ bool load(const char *dictionary)
     trav = root;
     // store number of words in dictionary
     int words = 0;
-    char *temp = malloc(LENGHT * sizeof(char));
+    char temp[LENGHT + 1];
     FILE *temp_dict = fopen(dictionary, "r");
     while(fgets(temp, LENGHT + 1, temp_dict))
         words++;
@@ -72,10 +76,9 @@ bool load(const char *dictionary)
     // for every dictionary word, iterate throught the TRIE
     for(int dict_idx = 0; dict_idx < words; dict_idx++)
     {
-        // read a word from dict into a buffer of size LENGHT(45 CHARACTERS) - defined in main as 45
-        char *word_buffer = malloc(LENGHT * sizeof(char));
+        // read a word from dict into a buffer of size LENGHT(45 CHARACTERS) + 1 (/0) - defined in main as 45
+        char word_buffer[LENGHT + 1];
         fgets(word_buffer, LENGHT + 1, temp_dict);
-        word_buffer = realloc(word_buffer, strlen(word_buffer) * sizeof(char)); // realloc to get rid of excess memory? not sure if necessary(?)
         // for each character in word_buffer load into TRIE
         for(int word_idx = 0; word_idx < strlen(word_buffer); word_idx++)
         {
@@ -83,8 +86,13 @@ bool load(const char *dictionary)
                 if(isalpha(word_buffer[word_idx]))
                 {
                     // current character's corresponding index in the alphabet(sprout)
-                    if(toupper(word_buffer[word_idx]))
-                        cor_idx = word_buffer[word_idx] - (int) 'A';
+                    word_buffer[word_idx] = toupper(word_buffer[word_idx]);
+                    if(word_buffer[word_idx] > 91 && word_buffer[word_idx] < 123)
+                    {
+                        printf("line 92 shouldn't happen."); //¤debug
+                        return 4;
+                    }
+                    cor_idx = word_buffer[word_idx] - (int) 'A';
 
                     // if NULL, malloc a new node, have sprout[cor_idx] point to it
                     if (trav->sprout[cor_idx] == NULL)
@@ -149,10 +157,10 @@ unsigned int size(void)
 }
 
 
-void recursion(node *trav)
+void recursion()
 {
-
     unsigned int size_sprout = sizeof(trav->sprout) / sizeof(node); // sizeof sprout[]
+
     for(int i = 0; i < size_sprout; i++)
     {
         if(trav->sprout[i])
@@ -161,7 +169,7 @@ void recursion(node *trav)
             trav->sprout[i] = NULL; // just in case
         }
     }
-    free(trav);
+    free(cursor);
 }
 
 // Unloads dictionary from memory, returning true if successful else false
@@ -170,14 +178,24 @@ bool unload(void)
     // TODO
     unsigned int size_sprout = sizeof(trav->sprout) / sizeof(node); // sizeof sprout[]
     trav = root; // point trav to root
+    // iterate through root->sprout and free bottom up with recursion
     for(int root_idx = 0; root_idx < size_sprout; root_idx++)
     {
-        // iterate over root->sprout and free bottom up with recursion
         if(trav->sprout[root_idx])
-            recursion(trav->sprout[root_idx]);
+        {
+            cursor = trav->sprout[root_idx];
+            recursion(cursor);
+        }
     }
-
-free(root);
-free(new_node);
+    //
+    if(root == NULL && new_node == NULL && trav == NULL)
+    {
+        free(root);
+        free(new_node);
+        free(trav);
+        return true;
+    }
+    else
+        printf("line 200");
 return false;
 }
